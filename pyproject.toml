@@ -1,0 +1,80 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "lerobot-genesis"
+dynamic = ["version"]
+description = "Run, record, and evaluate robot policies in the Genesis simulator through the standard LeRobot interfaces."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Arun Prasath E G" }]
+keywords = ["robotics", "simulation", "lerobot", "genesis", "imitation-learning", "reinforcement-learning"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+
+# The bridge core only needs numpy + the Gymnasium contract. The two heavy, hardware-tied
+# upstreams it bridges are optional extras so `import lerobot_genesis` stays light and CI-friendly;
+# they are imported lazily, only when a Genesis scene is actually built or a dataset is written.
+dependencies = [
+    "numpy>=1.24",
+    "gymnasium>=1.0",
+]
+
+[project.optional-dependencies]
+genesis = ["genesis-world>=0.2"]
+lerobot = ["lerobot>=0.4"]
+all = ["lerobot-genesis[genesis,lerobot]"]
+dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
+
+[project.urls]
+Homepage = "https://github.com/arun-prasath2005/lerobot-genesis"
+Repository = "https://github.com/arun-prasath2005/lerobot-genesis"
+Issues = "https://github.com/arun-prasath2005/lerobot-genesis/issues"
+
+[tool.hatch.version]
+path = "src/lerobot_genesis/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lerobot_genesis"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers", "--strict-config"]
+markers = [
+    "gpu: integration tests that require a CUDA GPU with genesis-world + lerobot installed (skipped by default).",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "RUF"]
+
+[tool.mypy]
+python_version = "3.10"
+files = ["src"]
+strict = true
+warn_unused_ignores = true
+# Upstreams ship partial or no type stubs; don't fail on their imports.
+[[tool.mypy.overrides]]
+module = ["genesis.*", "lerobot.*"]
+ignore_missing_imports = true
+
+# The env config subclasses LeRobot's EnvConfig, which is untyped here — allow that one base.
+[[tool.mypy.overrides]]
+module = ["lerobot_genesis.config"]
+disallow_subclassing_any = false
