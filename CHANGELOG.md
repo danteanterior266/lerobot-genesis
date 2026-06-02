@@ -6,12 +6,18 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-06-02
+
 ### Added
 - Policy evaluation: `GenesisEnvConfig` (`--env.type=genesis`) + a registered Franka reach reference
   task + the `lerobot-genesis-eval` launcher, so a LeRobot policy can be rolled out in a Genesis scene
-  via the standard `lerobot-eval` flow.
+  via the standard `lerobot-eval` flow. GPU-verified end to end with an ACT policy.
 - `lerobot_genesis.groot`: `build_modality` / `write_modality_json` to emit the `meta/modality.json`
   NVIDIA Isaac-GR00T training expects.
+
+### Fixed
+- Restore torch's default device to CPU after `gs.init` (Genesis sets it to cuda globally, which broke
+  LeRobot's eval rollout); declare `render_fps` in `GenesisEnv.metadata` for eval video export.
 
 ## [0.1.0] - 2026-06-02
 
