@@ -12,11 +12,13 @@ from __future__ import annotations
 
 from .driver import GenesisRobotDriver, bundled_franka_mjcf
 from .env import GenesisEnv, SceneDriver
+from .groot import EMBODIMENT_TAG_NEW, build_modality, write_modality_json
 from .recording import EpisodeSink, LeRobotDatasetSink, Policy, make_frame, record_episodes
 
 __version__ = "0.1.0"
 
 __all__ = [
+    "EMBODIMENT_TAG_NEW",
     "EpisodeSink",
     "GenesisEnv",
     "GenesisRobotDriver",
@@ -24,7 +26,9 @@ __all__ = [
     "Policy",
     "SceneDriver",
     "__version__",
+    "build_modality",
     "bundled_franka_mjcf",
     "make_frame",
     "record_episodes",
+    "write_modality_json",
 ]
