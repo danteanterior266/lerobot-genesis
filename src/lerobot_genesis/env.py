@@ -51,8 +51,9 @@ class GenesisEnv(gym.Env[dict[str, Any], FloatArray]):
     env to shape it differently.
     """
 
-    # Mirrors gymnasium.Env.metadata (a plain class attribute, not a ClassVar).
-    metadata = {"render_modes": ["rgb_array"]}  # noqa: RUF012
+    # Mirrors gymnasium.Env.metadata (a plain class attribute, not a ClassVar). render_fps is the
+    # conventional key LeRobot reads when saving eval videos.
+    metadata = {"render_modes": ["rgb_array"], "render_fps": 30}  # noqa: RUF012
 
     def __init__(
         self,

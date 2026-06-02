@@ -77,7 +77,7 @@ strict = true
 warn_unused_ignores = true
 # Upstreams ship partial or no type stubs; don't fail on their imports.
 [[tool.mypy.overrides]]
-module = ["genesis.*", "lerobot.*"]
+module = ["genesis.*", "lerobot.*", "torch.*"]
 ignore_missing_imports = true
 
 # The env config subclasses LeRobot's EnvConfig, which is untyped here — allow that one base.

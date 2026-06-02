@@ -163,6 +163,12 @@ class GenesisRobotDriver:
         except Exception as exc:  # gs.init is process-global; reuse an existing initialisation
             if "already initialized" not in str(exc).lower():
                 raise
+        # Genesis sets torch's global default device to the GPU. Restore the usual CPU default, or
+        # downstream torch code (LeRobot's eval rollout and policies) gets forced onto cuda. The sim
+        # runs on Genesis's own backend regardless; we read its tensors via explicit .cpu().
+        import torch
+
+        torch.set_default_device("cpu")
 
     @staticmethod
     def _morph(gs: Any, path: str) -> Any:
