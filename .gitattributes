@@ -1,0 +1,9 @@
+# Normalise line endings: LF in the repository, regardless of contributor OS.
+* text=auto eol=lf
+
+# Binary assets must never be normalised.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.mp4 binary
+*.parquet binary
