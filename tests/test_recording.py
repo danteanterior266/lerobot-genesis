@@ -2,28 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 import numpy as np
-from tests.test_env import FakeDriver
 
+from helpers import FakeDriver, FakeSink
 from lerobot_genesis import EpisodeSink, GenesisEnv, make_frame, record_episodes
-
-
-class FakeSink:
-    def __init__(self) -> None:
-        self.frames: list[dict[str, Any]] = []
-        self.episodes = 0
-        self.finalized = 0
-
-    def add_frame(self, frame: dict[str, Any]) -> None:
-        self.frames.append(frame)
-
-    def save_episode(self) -> None:
-        self.episodes += 1
-
-    def finalize(self) -> None:
-        self.finalized += 1
 
 
 def test_fake_sink_satisfies_the_protocol() -> None:

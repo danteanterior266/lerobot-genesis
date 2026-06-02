@@ -12,10 +12,12 @@ from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
 
 import numpy as np
+import numpy.typing as npt
 
 from .env import GenesisEnv
 
-Policy = Callable[[dict[str, Any]], np.ndarray]
+FloatArray = npt.NDArray[np.float32]
+Policy = Callable[[dict[str, Any]], FloatArray]
 
 
 @runtime_checkable
@@ -27,7 +29,7 @@ class EpisodeSink(Protocol):
     def finalize(self) -> None: ...
 
 
-def make_frame(obs: dict[str, Any], action: np.ndarray, *, camera: str = "front") -> dict[str, Any]:
+def make_frame(obs: dict[str, Any], action: FloatArray, *, camera: str = "front") -> dict[str, Any]:
     """One LeRobot frame from an observation and the action taken, in convention keys."""
     return {
         f"observation.images.{camera}": np.asarray(obs["pixels"], dtype=np.uint8),

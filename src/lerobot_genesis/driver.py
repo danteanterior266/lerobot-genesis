@@ -13,7 +13,10 @@ from collections.abc import Callable, Sequence
 from typing import Any
 
 import numpy as np
+import numpy.typing as npt
 
+FloatArray = npt.NDArray[np.float32]
+ImageArray = npt.NDArray[np.uint8]
 SuccessFn = Callable[["GenesisRobotDriver"], bool]
 
 
@@ -92,10 +95,10 @@ class GenesisRobotDriver:
         # so the action never depends on the model's internal joint ordering.
         self._dofs = self._resolve_dofs(action_joints)
         lo, hi = self._robot.get_dofs_limit()
-        self._low: np.ndarray = np.asarray(lo.cpu(), dtype=np.float32)[self._dofs]
-        self._high: np.ndarray = np.asarray(hi.cpu(), dtype=np.float32)[self._dofs]
-        self._span: np.ndarray = np.maximum(self._high - self._low, 1e-6)
-        self._home: np.ndarray = self._resolve_home(home_qpos)
+        self._low: FloatArray = np.asarray(lo.cpu(), dtype=np.float32)[self._dofs]
+        self._high: FloatArray = np.asarray(hi.cpu(), dtype=np.float32)[self._dofs]
+        self._span: FloatArray = np.maximum(self._high - self._low, 1e-6)
+        self._home: FloatArray = self._resolve_home(home_qpos)
 
         if kp is not None:
             self._robot.set_dofs_kp(np.asarray(kp, dtype=np.float32), self._dofs)
@@ -120,7 +123,7 @@ class GenesisRobotDriver:
         for _ in range(self._steps_per_action):
             self._scene.step()
 
-    def apply_action(self, action: np.ndarray) -> None:
+    def apply_action(self, action: FloatArray) -> None:
         a = np.clip(np.asarray(action, dtype=np.float32), -1.0, 1.0)
         target = self._low + (a + 1.0) * 0.5 * self._span
         self._robot.control_dofs_position(target, self._dofs)
@@ -129,7 +132,7 @@ class GenesisRobotDriver:
         for _ in range(self._steps_per_action):
             self._scene.step()
 
-    def observe(self) -> tuple[np.ndarray, np.ndarray]:
+    def observe(self) -> tuple[ImageArray, FloatArray]:
         rendered = self._camera.render(rgb=True)
         rgb = rendered[0] if isinstance(rendered, tuple) else rendered
         return np.asarray(rgb, dtype=np.uint8), self.joint_positions()
@@ -138,14 +141,14 @@ class GenesisRobotDriver:
         return bool(self._success_fn(self)) if self._success_fn is not None else False
 
     # -- helpers (also useful for scripted policies) -------------------------------------------
-    def joint_positions(self) -> np.ndarray:
+    def joint_positions(self) -> FloatArray:
         """Current angles of the controlled joints (radians)."""
         return np.asarray(self._robot.get_dofs_position(self._dofs).cpu(), dtype=np.float32)
 
-    def normalize(self, qpos: Sequence[float]) -> np.ndarray:
+    def normalize(self, qpos: Sequence[float]) -> FloatArray:
         """Map controlled-joint angles to the ``[-1, 1]`` action that commands them."""
         q = np.asarray(qpos, dtype=np.float32)
-        scaled: np.ndarray = 2.0 * (q - self._low) / self._span - 1.0
+        scaled: FloatArray = 2.0 * (q - self._low) / self._span - 1.0
         return scaled.clip(-1.0, 1.0).astype(np.float32)
 
     @property
@@ -179,8 +182,8 @@ class GenesisRobotDriver:
             dofs.extend(idx if hasattr(idx, "__iter__") else [idx])
         return dofs
 
-    def _resolve_home(self, home_qpos: Sequence[float] | None) -> np.ndarray:
-        midpoint: np.ndarray = (self._low + self._high) * 0.5
+    def _resolve_home(self, home_qpos: Sequence[float] | None) -> FloatArray:
+        midpoint: FloatArray = (self._low + self._high) * 0.5
         if home_qpos is None:
             return midpoint.astype(np.float32)
         q = np.asarray(home_qpos, dtype=np.float32)

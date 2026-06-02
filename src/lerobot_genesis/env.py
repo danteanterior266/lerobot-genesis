@@ -12,7 +12,11 @@ from typing import Any, Protocol, runtime_checkable
 
 import gymnasium as gym
 import numpy as np
+import numpy.typing as npt
 from gymnasium import spaces
+
+FloatArray = npt.NDArray[np.float32]
+ImageArray = npt.NDArray[np.uint8]
 
 
 @runtime_checkable
@@ -29,13 +33,13 @@ class SceneDriver(Protocol):
     image_shape: tuple[int, int, int]
 
     def reset(self) -> None: ...
-    def apply_action(self, action: np.ndarray) -> None: ...
+    def apply_action(self, action: FloatArray) -> None: ...
     def step(self) -> None: ...
-    def observe(self) -> tuple[np.ndarray, np.ndarray]: ...
+    def observe(self) -> tuple[ImageArray, FloatArray]: ...
     def is_success(self) -> bool: ...
 
 
-class GenesisEnv(gym.Env[dict[str, Any], np.ndarray]):
+class GenesisEnv(gym.Env[dict[str, Any], FloatArray]):
     """A Genesis scene as a LeRobot-ready ``gym.Env``.
 
     Observation is ``{"pixels": HWC uint8, "agent_pos": float32 vector}`` and the action is a
@@ -83,7 +87,7 @@ class GenesisEnv(gym.Env[dict[str, Any], np.ndarray]):
         self._steps = 0
         return self._observation(), {"is_success": False}
 
-    def step(self, action: np.ndarray) -> tuple[dict[str, Any], float, bool, bool, dict[str, Any]]:
+    def step(self, action: FloatArray) -> tuple[dict[str, Any], float, bool, bool, dict[str, Any]]:
         self._driver.apply_action(np.asarray(action, dtype=np.float32))
         self._driver.step()
         self._steps += 1
@@ -91,7 +95,7 @@ class GenesisEnv(gym.Env[dict[str, Any], np.ndarray]):
         truncated = self._steps >= self._max_episode_steps
         return self._observation(), float(success), success, truncated, {"is_success": success}
 
-    def render(self) -> np.ndarray | None:
+    def render(self) -> ImageArray | None:
         if self.render_mode != "rgb_array":
             return None
         rgb, _ = self._driver.observe()

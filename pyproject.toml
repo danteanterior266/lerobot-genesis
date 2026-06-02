@@ -51,6 +51,8 @@ packages = ["src/lerobot_genesis"]
 [tool.pytest.ini_options]
 minversion = "8.0"
 testpaths = ["tests"]
+# Put tests/ on the path so shared fakes import as `helpers` without a package or sys.path hacks.
+pythonpath = ["tests"]
 addopts = ["-ra", "--strict-markers", "--strict-config"]
 markers = [
     "gpu: integration tests that require a CUDA GPU with genesis-world + lerobot installed (skipped by default).",
